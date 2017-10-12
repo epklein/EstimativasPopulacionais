@@ -86,8 +86,20 @@ dataArea <- readAreaData()
 
 # data.frame das unidades federativas do país
 fedUnitsDF <- merge(dataPop, dataArea)
-fedUnitsDF$FacPopulation <- factor(fedUnitsDF$Population)
-fedUnitsDF$FacArea <- factor(fedUnitsDF$Area)
+
+# colunas ordenadas e filtradas para fins de plotagem de população
+fedUnitsDF$UnitOrdPop <- factor(fedUnitsDF$Unit,
+                                 levels=fedUnitsDF$Unit[order(fedUnitsDF$Population)], 
+                                 ordered=TRUE)
+fedUnitsDF$UnitNamePopPlot <- as.character(fedUnitsDF$Unit)
+fedUnitsDF$UnitNamePopPlot[which(fedUnitsDF$Population < 2.5E+6)] <- NA
+
+# colunas ordenadas e filtradas para fins de plotagem de área territorial
+fedUnitsDF$UnitOrdArea <- factor(fedUnitsDF$Unit,
+                                 levels=fedUnitsDF$Unit[order(fedUnitsDF$Area)], 
+                                 ordered=TRUE)
+fedUnitsDF$UnitNameAreaPlot <- as.character(fedUnitsDF$Unit)
+fedUnitsDF$UnitNameAreaPlot[which(fedUnitsDF$Area < 1E+5)] <- NA
 
 # data.frame das regiões do país
 regionsDF <- aggregate(list(Population=fedUnitsDF$Population, Area=fedUnitsDF$Area),
@@ -100,23 +112,23 @@ regionsDF <- aggregate(list(Population=fedUnitsDF$Population, Area=fedUnitsDF$Ar
 
 ggplot(data=fedUnitsDF, 
        aes(x=Region, weights=Population / 1E+6)) +
-  geom_bar(aes(fill=FacPopulation), color="Black") +
-  geom_text(data=fedUnitsDF[fedUnitsDF$Population > 2.5E+6,],
-            aes(x=Region, y=Population / 1E+6, group=FacPopulation, label=Unit),
+  geom_bar(aes(fill=UnitOrdPop), color="Black") +
+  geom_text(aes(x=Region, y=Population / 1E+6, group=UnitOrdPop, label=UnitNamePopPlot),
             position = position_stack(vjust = 0.5), size=3.3) +
   guides(fill=FALSE) +
-  xlab("Região do Brasil") + ylab("Milhões de habitantes")
+  xlab("Região do Brasil") +
+  ylab("Milhões de habitantes")
 
 # Gráfico de áreas por região / unidade federativa
 
 ggplot(data=fedUnitsDF,
        aes(x=Region, weights=Area / 1E+3)) +
-  geom_bar(aes(fill=FacArea), color="Black") +
-  geom_text(data=fedUnitsDF[fedUnitsDF$Area > 1E+5,],
-            aes(x=Region, y=Area / 1E+3, group=FacArea, label=Unit),
+  geom_bar(aes(fill=UnitOrdArea), color="Black") +
+  geom_text(aes(x=Region, y=Area / 1E+3, group=UnitOrdArea, label=UnitNameAreaPlot),
             position = position_stack(vjust = 0.5), size=3.3) +
   guides(fill=FALSE) +
-  xlab("Região do Brasil") + ylab("Área (mil Km²)")
+  xlab("Região do Brasil") +
+  ylab("Área (mil Km²)")
 
 # Gráfico das densidades demográficas das regiões do país
 
