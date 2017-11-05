@@ -1,54 +1,54 @@
 library(readxl)
 
 countryName <- c("Brasil")
-regionName <- c("Região Norte", "Região Nordeste", "Região Sudeste",
-                "Região Sul", "Região Centro-Oeste")
+regionName <- c("RegiÃ£o Norte", "RegiÃ£o Nordeste", "RegiÃ£o Sudeste",
+                "RegiÃ£o Sul", "RegiÃ£o Centro-Oeste")
 
-# ----- FUNÇÕES DE IMPORTAÇÃO DE DADOS -----
+# ----- FUNÃ‡Ã•ES DE IMPORTAÃ‡ÃƒO DE DADOS -----
 readPopulationData <- function() {
   
-  # carga das estimativas populacionais e formatação
+  # carga das estimativas populacionais e formataÃ§Ã£o
   # uso da biblioteca readxl para leitura diretamente de planilha Excel
   rawDataPop <- read_excel("estimativa_dou_2017.xls",
                            sheet <- "BRASIL E UFs",
                            range="A2:C35")
   
-  # exclusão de coluna vazia e acerto dos nomes das colunas
+  # exclusÃ£o de coluna vazia e acerto dos nomes das colunas
   rawDataPop$X__1 <- NULL
   colnames(rawDataPop) <- c("Unit", "Population")
   
-  # limpeza e formatação da informação de População
+  # limpeza e formataÃ§Ã£o da informaÃ§Ã£o de PopulaÃ§Ã£o
   rawDataPop$Population <- gsub(" \\(\\*\\)", "", rawDataPop$Population)
   rawDataPop$Population <- gsub(" \\(\\*\\*\\)", "", rawDataPop$Population)
   rawDataPop$Population <- gsub("\\.", "", rawDataPop$Population)
   
   rawDataPop$Population <- as.integer(rawDataPop$Population)
 
-  #formatação da tabela final de populações
+  #formataÃ§Ã£o da tabela final de populaÃ§Ãµes
   
   dataPop <- NULL
   
-  #região Norte
+  #regiÃ£o Norte
   tempDF <- rawDataPop[c(3:9),]
   tempDF$Region <- regionName[1]
   dataPop <- rbind(dataPop, tempDF)
   
-  #região Nordeste
+  #regiÃ£o Nordeste
   tempDF <- rawDataPop[c(11:19),]
   tempDF$Region <- regionName[2]
   dataPop <- rbind(dataPop, tempDF)
   
-  #região Sudeste
+  #regiÃ£o Sudeste
   tempDF <- rawDataPop[c(21:24),]
   tempDF$Region <- regionName[3]
   dataPop <- rbind(dataPop, tempDF)
   
-  #região Sul
+  #regiÃ£o Sul
   tempDF <- rawDataPop[c(26:28),]
   tempDF$Region <- regionName[4]
   dataPop <- rbind(dataPop, tempDF)
   
-  #região Centro-Oeste
+  #regiÃ£o Centro-Oeste
   tempDF <- rawDataPop[c(30:33),]
   tempDF$Region <- regionName[5]
   dataPop <- rbind(dataPop, tempDF)
@@ -61,16 +61,16 @@ readPopulationData <- function() {
 
 readAreaData <- function() {
   
-  # carga das medidas de área das Unidades Federativas
+  # carga das medidas de Ã¡rea das Unidades Federativas
   dataArea <- read.csv2("area_UF_Brasil.csv", encoding="UTF-8")
 
-  # limpeza e formatação da informação de Área
-  dataArea$Área..Km2. <- gsub("\\.", "", dataArea$Área..Km2.)
-  dataArea$Área..Km2. <- gsub(",", "\\.", dataArea$Área..Km2.)
-  dataArea$Área..Km2. <- as.numeric(dataArea$Área..Km2.)
+  # limpeza e formataÃ§Ã£o da informaÃ§Ã£o de Ãrea
+  dataArea$Ãrea..Km2. <- gsub("\\.", "", dataArea$Ãrea..Km2.)
+  dataArea$Ãrea..Km2. <- gsub(",", "\\.", dataArea$Ãrea..Km2.)
+  dataArea$Ãrea..Km2. <- as.numeric(dataArea$Ãrea..Km2.)
   
-  # formatação da tabela final de áreas
-  dataArea$Código.UF <- NULL
+  # formataÃ§Ã£o da tabela final de Ã¡reas
+  dataArea$CÃ³digo.UF <- NULL
   colnames(dataArea) <- c("Unit", "Area")
 
   return (dataArea)
@@ -78,3 +78,8 @@ readAreaData <- function() {
 
 dataPopulation <- readPopulationData()
 dataArea <- readAreaData()
+
+dfFedUnits <- merge(dataPopulation, dataArea)
+dfFedUnits <- dfFedUnits[,c(1,3,2,4)]
+
+save(dfFedUnits, file="ibge.RData")
