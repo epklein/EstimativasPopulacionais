@@ -1,0 +1,123 @@
+---
+title: "Estimativas Populacionais Brasil"
+output:
+  html_document:
+    code_folding: hide
+    theme: spacelab
+    includes:
+      in_header: google-analytics.js
+runtime: shiny
+---
+
+O Brasil é um país continental, com uma população estimada de 207 milhões de habitantes, em um território de 8,5 milhões de Km².
+
+De grandes aglomerados populacionais, como Brasília e São Paulo, até a Floresta Amazônica, temos grandes diferenças na distribuição populacional ao longo de todo o território. Para entendermos melhor estas diferenças, construí este **notebook** utilizando [RMarkdown](https://rmarkdown.rstudio.com) e [RStudio](https://www.rstudio.com).
+
+**Este notebook está disponível em meu [GitHub](https://github.com/epklein/EstimativasPopulacionais-Brasil)**.
+
+Os dados utilizados são oficiais do IBGE, disponíveis nos seguintes links:
+
+- Estimativas populacionais de 2017: https://www.ibge.gov.br/estatisticas-novoportal/sociais/populacao/9103-estimativas-de-populacao.html
+- Área territorial do Brasil, Regiões e Unidades Federativas: https://ww2.ibge.gov.br/home/geociencias/areaterritorial/principal.shtm
+
+
+```{r setup, echo=FALSE}
+
+# os dados foram importados anteriormente pelo arquivo Import.R
+# carga dos dados já importados
+load(file="ibge.RData")
+
+# Para visualizar os dados vamos utilizar a biblioteca ggplot2
+library(ggplot2)
+
+```
+
+# Dados populacionais e demográficos do Brasil
+
+A tabela a seguir, com a consolidação dos dados do IBGE, exibe a População e Área de cada uma das Unidades da Federação.
+
+```{r}
+
+# data.frame das unidades federativas do país
+dfFedUnits
+```
+
+A próxima tabela exibe População e Área consolidados pelas Regiões Brasileiras, o que nos permitirá traçar os contrastes.
+
+```{r}
+# data.frame das regiões do país
+dfRegions <- aggregate(list(Population=dfFedUnits$Population,
+                            Area=dfFedUnits$Area),
+                       list(Region=dfFedUnits$Region),
+                       sum)
+
+dfRegions
+```
+
+# Estimativas populacionais e demográficas
+
+Como a população brasileira está distribuída ao longo dos seus 26 estados e Distrito Federal? Vejamos o seguinte gráfico:
+
+```{r, fig.width=10, warning=FALSE}
+
+# colunas ordenadas e filtradas para fins de plotagem de população
+dfFedUnits$UnitOrdPop <- factor(dfFedUnits$Unit,
+                                 levels=dfFedUnits$Unit[order(dfFedUnits$Population)], 
+                                 ordered=TRUE)
+dfFedUnits$UnitNamePopPlot <- as.character(dfFedUnits$Unit)
+dfFedUnits$UnitNamePopPlot[which(dfFedUnits$Population < 2.5E+6)] <- NA
+
+ggplot(data=dfFedUnits, 
+       aes(x=Region, weights=Population / 1E+6)) +
+  geom_bar(aes(fill=UnitOrdPop), color="Black") +
+  geom_text(aes(x=Region, y=Population / 1E+6, group=UnitOrdPop, label=UnitNamePopPlot),
+            position = position_stack(vjust = 0.5), size=3.3) +
+  guides(fill=FALSE) +
+  xlab("Região do Brasil") +
+  ylab("Milhões de habitantes")
+
+```
+
+A região Sudeste, e principalmente o estado de São Paulo, destoam com as maiores concentrações. O Nordeste segue logo atrás com grandes populações. Com exceção do Pará, a região Norte tem as menores populações.
+
+O contraste entre regiões é ainda maior quando se compara estes resultados com as áreas das regiões e Unidades Federativas, conforme o gráfico abaixo:
+
+```{r, fig.width=10, warning=FALSE}
+
+# colunas ordenadas e filtradas para fins de plotagem de área territorial
+dfFedUnits$UnitOrdArea <- factor(dfFedUnits$Unit,
+                                 levels=dfFedUnits$Unit[order(dfFedUnits$Area)], 
+                                 ordered=TRUE)
+dfFedUnits$UnitNameAreaPlot <- as.character(dfFedUnits$Unit)
+dfFedUnits$UnitNameAreaPlot[which(dfFedUnits$Area < 1E+5)] <- NA
+
+ggplot(data=dfFedUnits,
+       aes(x=Region, weights=Area / 1E+3)) +
+  geom_bar(aes(fill=UnitOrdArea), color="Black") +
+  geom_text(aes(x=Region, y=Area / 1E+3, group=UnitOrdArea, label=UnitNameAreaPlot),
+            position = position_stack(vjust = 0.5), size=3.3) +
+  guides(fill=FALSE) +
+  xlab("Região do Brasil") +
+  ylab("Área (mil Km²)")
+
+```
+
+Enquanto a grande população da região Sudeste se concentra em menos de 1 milhão de Km² do território, a imensidão de território dos estados do Norte, seguidos do Centro-Oeste, destacam-se pela baixa concentração de população.
+
+Confira os extremos no próximo gráfico, que indica a densidade demográfica das cinco regiões do Brasil. No Sudeste temos 94 habitantes por Km², enquanto que no Norte temos cerca de 5 habitantes por Km² apenas.
+
+```{r, fig.width=10, warning=FALSE}
+
+ggplot(data=dfRegions, aes(x=Region)) +
+  geom_col(aes(y=Population/Area, fill=Region)) +
+  geom_text(aes(x=Region, y=Population / Area, label=round(Population / Area, 2)),
+            size=3.3, vjust=-1) +
+  guides(fill=FALSE) +
+  ylim(0, 100) +
+  xlab("Região do Brasil") + ylab("Densidade demográfica (Hab/Km²)")
+
+```
+
+Ainda em extremos, de um lado temos o Distrito Federal com 525 habitantes por Km², maior densidade demográfica do país, enquanto que do outro lado temos Roraima e o Amazonas com menos de 3 habitantes por Km². Que grande diferença!
+
+Outra curiosidade, se o Brasil tivesse ao longo do seu território a mesma densidade demográfica da região Sudeste, então teríamos uma população de 800 milhões de brasileiros!
