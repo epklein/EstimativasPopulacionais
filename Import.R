@@ -9,17 +9,16 @@ readPopulationData <- function() {
   
   # carga das estimativas populacionais e formatação
   # uso da biblioteca readxl para leitura diretamente de planilha Excel
-  rawDataPop <- read_excel("estimativa_dou_2017.xls",
+  rawDataPop <- read_excel("estimativa_dou_2021.xls",
                            sheet <- "BRASIL E UFs",
                            range="A2:C35")
   
   # exclusão de coluna vazia e acerto dos nomes das colunas
-  rawDataPop$X__1 <- NULL
+  rawDataPop <- select(rawDataPop, -c(2))
   colnames(rawDataPop) <- c("Unit", "Population")
   
   # limpeza e formatação da informação de População
-  rawDataPop$Population <- gsub(" \\(\\*\\)", "", rawDataPop$Population)
-  rawDataPop$Population <- gsub(" \\(\\*\\*\\)", "", rawDataPop$Population)
+  rawDataPop$Population <- gsub("\\([0-9])", "", rawDataPop$Population)
   rawDataPop$Population <- gsub("\\.", "", rawDataPop$Population)
   
   rawDataPop$Population <- as.integer(rawDataPop$Population)

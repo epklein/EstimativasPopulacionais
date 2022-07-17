@@ -4,12 +4,10 @@ output:
   html_document:
     code_folding: hide
     theme: spacelab
-    includes:
-      in_header: google-analytics.js
 runtime: shiny
 ---
 
-O Brasil é um país continental, com uma população estimada de 207 milhões de habitantes, em um território de 8,5 milhões de Km².
+O Brasil é um país continental, com uma população estimada de 213 milhões de habitantes, em um território de 8,5 milhões de Km².
 
 De grandes aglomerados populacionais, como Brasília e São Paulo, até a Floresta Amazônica, temos grandes diferenças na distribuição populacional ao longo de todo o território. Para entendermos melhor estas diferenças, construí este **notebook** utilizando [RMarkdown](https://rmarkdown.rstudio.com) e [RStudio](https://www.rstudio.com).
 
@@ -17,7 +15,7 @@ De grandes aglomerados populacionais, como Brasília e São Paulo, até a Flores
 
 Os dados utilizados são oficiais do IBGE, disponíveis nos seguintes links:
 
-- Estimativas populacionais de 2017: https://www.ibge.gov.br/estatisticas-novoportal/sociais/populacao/9103-estimativas-de-populacao.html
+- Estimativas populacionais de 2021: https://www.ibge.gov.br/estatisticas-novoportal/sociais/populacao/9103-estimativas-de-populacao.html
 - Área territorial do Brasil, Regiões e Unidades Federativas: https://ww2.ibge.gov.br/home/geociencias/areaterritorial/principal.shtm
 
 
@@ -104,7 +102,7 @@ ggplot(data=dfFedUnits,
 
 Enquanto a grande população da região Sudeste se concentra em menos de 1 milhão de Km² do território, a imensidão de território dos estados do Norte, seguidos do Centro-Oeste, destacam-se pela baixa concentração de população.
 
-Confira os extremos no próximo gráfico, que indica a densidade demográfica das cinco regiões do Brasil. No Sudeste temos 94 habitantes por Km², enquanto que no Norte temos cerca de 5 habitantes por Km² apenas.
+Confira os extremos no próximo gráfico, que indica a densidade demográfica das cinco regiões do Brasil. No Sudeste temos quase 97 habitantes por Km², enquanto que no Norte temos cerca de 5 habitantes por Km² apenas.
 
 ```{r, fig.width=10, warning=FALSE}
 
